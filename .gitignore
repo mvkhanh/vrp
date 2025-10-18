@@ -3,3 +3,7 @@ runs/
 *.pt
 *.log
 *.ipynb
+log/
+backgrounds/
+*.mp4
+videos_input/

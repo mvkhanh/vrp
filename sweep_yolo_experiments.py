@@ -17,12 +17,37 @@ def set_seed(seed: int = 42):
     torch.backends.cudnn.deterministic = False
     torch.backends.cudnn.benchmark = True
 
-def pick_device(device_arg: str):
-    if device_arg.lower() == "auto":
-        return 0 if torch.cuda.is_available() else "cpu"
-    if device_arg.lower() == "cpu":
+def pick_device(device_arg):
+    """
+    Trả về 'cpu' hoặc 'cuda:{i}' theo đầu vào:
+    - int -> 'cuda:{i}'
+    - 'auto' -> 'cuda:0' nếu có CUDA, ngược lại 'cpu'
+    - 'cpu' -> 'cpu'
+    - '0' (chuỗi số) -> 'cuda:0'
+    - 'cuda:1' -> giữ nguyên
+    """
+    if isinstance(device_arg, int):
+        return f"cuda:{device_arg}"
+
+    if device_arg is None:
+        return "cuda:0" if torch.cuda.is_available() else "cpu"
+
+    s = str(device_arg).strip().lower()
+
+    if s == "auto":
+        return "cuda:0" if torch.cuda.is_available() else "cpu"
+    if s == "cpu":
         return "cpu"
-    return device_arg
+    if s.isdigit():                 # ví dụ "0", "1"
+        return f"cuda:{s}"
+    if s.startswith("cuda:"):       # ví dụ "cuda:2"
+        return s
+
+    # fallback: cho các giá trị mơ hồ như "cuda"/"gpu"
+    if s in ("cuda", "gpu"):
+        return "cuda:0" if torch.cuda.is_available() else "cpu"
+
+    return s  # trả nguyên trạng nếu không khớp case nào
 
 def now_ts():
     return time.strftime("%Y%m%d_%H%M%S")
@@ -35,68 +60,75 @@ def default_experiments():
     """
     exps = []
 
-    # 1) Base SGD, augment nhẹ, 100 epochs
-    # exps.append((
-    #     "base_sgd_100",
-    #     dict(
-    #         optimizer="SGD",
-    #         epochs=150,
-    #         lr0=0.01, lrf=0.01, momentum=0.9, weight_decay=5e-4,
-    #         hsv_h=0.05, hsv_s=0.5, hsv_v=0.5,
-    #         degrees=10, translate=0.10, scale=0.50, shear=10,
-    #         perspective=0.0005,
-    #         mixup=0.0, cutmix=0.0,
-    #         mosaic=1.0,
-    #         dropout=0.1,
-    #     )
-    # ))
-
-    # 4) Heavy augmentation (AdamW), 200 epochs — overfitting control
-    # exps.append((
-    #     "heavy_aug_adamw_200",
-    #     dict(
-    #         optimizer="AdamW",
-    #         epochs=250,
-    #         lr0=6e-4, lrf=0.01, weight_decay=0.012,
-    #         hsv_h=0.07, hsv_s=0.6, hsv_v=0.6,
-    #         degrees=15, translate=0.15, scale=0.60, shear=12,
-    #         perspective=0.0010,
-    #         mixup=0.35, cutmix=0.35,
-    #         mosaic=0.9,
-    #         dropout=0.2,
-    #     )
-    # ))
-
-    # # 5) No-mosaic & no-mix (SGD), 100 epochs — dữ liệu “sát thực tế”
     exps.append((
-        "no_mosaic_sgd_100",
+        "heavy_aug_adamw",
+        dict(
+            optimizer="AdamW",
+            epochs=250,
+            lr0=6e-4, lrf=0.01, weight_decay=0.012,
+            hsv_h=0.07, hsv_s=0.6, hsv_v=0.6,
+            degrees=15, translate=0.15, scale=0.60, shear=12,
+            perspective=0.0010,
+            mixup=0.35, cutmix=0.35,
+            mosaic=0.9,
+            dropout=0.2,
+        )
+    ))
+
+    exps.append((
+        "no_mosaic_sgd",
         dict(
             optimizer="SGD",
-            epochs=150,
+            epochs=250,
             lr0=0.005, lrf=0.01, momentum=0.9, weight_decay=5e-4,
             hsv_h=0.04, hsv_s=0.4, hsv_v=0.4,
             degrees=8, translate=0.08, scale=0.35, shear=8,
             perspective=0.0003,
             mixup=0.0, cutmix=0.0,
-            mosaic=0.0,          # tắt mosaic
+            mosaic=0.0,
             dropout=0.1,
         )
     ))
-    # exps.append((
-    #     "heavy_aug_ms_",
-    #     dict(
-    #         optimizer="AdamW",
-    #         epochs=250,
-    #         lr0=6e-4, lrf=0.01, weight_decay=0.012,
-    #         hsv_h=0.07, hsv_s=0.6, hsv_v=0.6,
-    #         degrees=15, translate=0.15, scale=0.60, shear=12,
-    #         perspective=0.0010,
-    #         mixup=0.35, cutmix=0.35,
-    #         mosaic=0.9,
-    #         dropout=0.2,
-    #         multi_scale=True
-    #     )
-    # ))
+
+    exps.append((
+        "no_mosaic_sgd_ms",
+        dict(
+            optimizer="SGD",
+            epochs=250,
+            lr0=0.005, lrf=0.01, momentum=0.9, weight_decay=5e-4,
+            hsv_h=0.04, hsv_s=0.4, hsv_v=0.4,
+            degrees=8, translate=0.08, scale=0.35, shear=8,
+            perspective=0.0003,
+            mixup=0.0, cutmix=0.0,
+            mosaic=0.0,
+            dropout=0.1,
+            multi_scale=True
+        )
+    ))
+    exps.append((
+        "no_mosaic_sgd_ms_degrees",
+        dict(
+            optimizer="SGD",
+            epochs=250,
+            lr0=0.005, lrf=0.01, momentum=0.9, weight_decay=5e-4,
+            hsv_h=0.04, hsv_s=0.4, hsv_v=0.4,
+            degrees=30, translate=0.08, scale=0.35, shear=8,
+            perspective=0.0003,
+            mixup=0.0, cutmix=0.0,
+            mosaic=0.0,
+            dropout=0.1,
+            multi_scale=True
+        )
+    ))
+
+    exps.append((
+        "base_ms",
+        dict(
+            optimizer="SGD",
+            epochs=250,
+            multi_scale=True
+        )
+    ))
     
     return exps
 
@@ -156,15 +188,15 @@ def maybe_eval(ckpt_path, yaml_path, device, batch, split):
 def main():
     parser = argparse.ArgumentParser("YOLO sweep runner")
     parser.add_argument("--yaml", required=True, type=str, help="dataset yaml")
-    parser.add_argument("--model", default="yolo11s.pt", type=str)
-    parser.add_argument("--project", default="runs/second", type=str)
+    parser.add_argument("--model", default="yolo11n.pt", type=str)
+    parser.add_argument("--project", default="runs/nano", type=str)
     parser.add_argument("--imgsz", default=640, type=int)
     parser.add_argument("--batch", default=64, type=int)
-    parser.add_argument("--workers", default=min(4, os.cpu_count() or 2), type=int)
+    parser.add_argument("--workers", default=1, type=int)
     parser.add_argument("--fraction", default=1.0, type=float)
     parser.add_argument("--device", default="auto", type=str)
     parser.add_argument("--seed", default=42, type=int)
-    parser.add_argument("--patience", default=20, type=int)
+    parser.add_argument("--patience", default=40, type=int)
     parser.add_argument("--only", default="", type=str,
                         help="Danh sách tên exp, phân tách bằng dấu phẩy, để chạy một phần (vd: base_sgd_100,heavy_aug_adamw_200)")
     parser.add_argument("--eval-split", default="test", type=str, choices=["none", "val", "test"])

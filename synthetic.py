@@ -7,14 +7,11 @@ Sinh ảnh tổng hợp (synthetic) cho YOLO từ các template RGBA (đã cắt
 - Bbox tính CHÍNH XÁC từ kênh alpha sau mọi biến đổi
 - Ghi nhãn YOLO (class cx cy w h) chuẩn hóa [0,1]
 - Hạn chế chồng lấn theo IoU + kiểm soát che khuất
-
-YÊU CẦU MỚI:
 - 80% ảnh MULTI-CLASS (trong một ảnh có thể có class trùng nhau)
 - 20% ảnh SINGLE-CLASS (chỉ 1 class, nhiều instance)
 - TỶ LỆ 80/20 ĐƯỢC ĐẢM BẢO TRONG TỪNG TẬP train/val/test
 - CÂN BẰNG instance giữa các class trong MỖI TẬP (dùng lấy mẫu thiên về lớp đang thiếu)
 
-Ghi chú: Việc cân bằng instance đạt gần như tuyệt đối nhờ chọn lớp theo số lượng \"đã đặt\" thấp nhất.
 Nếu một vài instance bị loại do che khuất quá mạnh, vòng lặp sinh các ảnh tiếp theo sẽ tự kéo về trạng thái cân bằng.
 """
 from __future__ import annotations
