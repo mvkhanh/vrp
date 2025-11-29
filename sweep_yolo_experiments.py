@@ -60,35 +60,35 @@ def default_experiments():
     """
     exps = []
 
-    exps.append((
-        "heavy_aug_adamw",
-        dict(
-            optimizer="AdamW",
-            epochs=250,
-            lr0=6e-4, lrf=0.01, weight_decay=0.012,
-            hsv_h=0.07, hsv_s=0.6, hsv_v=0.6,
-            degrees=15, translate=0.15, scale=0.60, shear=12,
-            perspective=0.0010,
-            mixup=0.35, cutmix=0.35,
-            mosaic=0.9,
-            dropout=0.2,
-        )
-    ))
+    # exps.append((
+    #     "heavy_aug_adamw",
+    #     dict(
+    #         optimizer="AdamW",
+    #         epochs=250,
+    #         lr0=6e-4, lrf=0.01, weight_decay=0.012,
+    #         hsv_h=0.07, hsv_s=0.6, hsv_v=0.6,
+    #         degrees=15, translate=0.15, scale=0.60, shear=12,
+    #         perspective=0.0010,
+    #         mixup=0.35, cutmix=0.35,
+    #         mosaic=0.9,
+    #         dropout=0.2,
+    #     )
+    # ))
 
-    exps.append((
-        "no_mosaic_sgd",
-        dict(
-            optimizer="SGD",
-            epochs=250,
-            lr0=0.005, lrf=0.01, momentum=0.9, weight_decay=5e-4,
-            hsv_h=0.04, hsv_s=0.4, hsv_v=0.4,
-            degrees=8, translate=0.08, scale=0.35, shear=8,
-            perspective=0.0003,
-            mixup=0.0, cutmix=0.0,
-            mosaic=0.0,
-            dropout=0.1,
-        )
-    ))
+    # exps.append((
+    #     "no_mosaic_sgd",
+    #     dict(
+    #         optimizer="SGD",
+    #         epochs=250,
+    #         lr0=0.005, lrf=0.01, momentum=0.9, weight_decay=5e-4,
+    #         hsv_h=0.04, hsv_s=0.4, hsv_v=0.4,
+    #         degrees=8, translate=0.08, scale=0.35, shear=8,
+    #         perspective=0.0003,
+    #         mixup=0.0, cutmix=0.0,
+    #         mosaic=0.0,
+    #         dropout=0.1,
+    #     )
+    # ))
 
     exps.append((
         "no_mosaic_sgd_ms",
@@ -105,30 +105,30 @@ def default_experiments():
             multi_scale=True
         )
     ))
-    exps.append((
-        "no_mosaic_sgd_ms_degrees",
-        dict(
-            optimizer="SGD",
-            epochs=250,
-            lr0=0.005, lrf=0.01, momentum=0.9, weight_decay=5e-4,
-            hsv_h=0.04, hsv_s=0.4, hsv_v=0.4,
-            degrees=30, translate=0.08, scale=0.35, shear=8,
-            perspective=0.0003,
-            mixup=0.0, cutmix=0.0,
-            mosaic=0.0,
-            dropout=0.1,
-            multi_scale=True
-        )
-    ))
+    # exps.append((
+    #     "no_mosaic_sgd_ms_degrees",
+    #     dict(
+    #         optimizer="SGD",
+    #         epochs=250,
+    #         lr0=0.005, lrf=0.01, momentum=0.9, weight_decay=5e-4,
+    #         hsv_h=0.04, hsv_s=0.4, hsv_v=0.4,
+    #         degrees=30, translate=0.08, scale=0.35, shear=8,
+    #         perspective=0.0003,
+    #         mixup=0.0, cutmix=0.0,
+    #         mosaic=0.0,
+    #         dropout=0.1,
+    #         multi_scale=True
+    #     )
+    # ))
 
-    exps.append((
-        "base_ms",
-        dict(
-            optimizer="SGD",
-            epochs=250,
-            multi_scale=True
-        )
-    ))
+    # exps.append((
+    #     "base_ms",
+    #     dict(
+    #         optimizer="SGD",
+    #         epochs=250,
+    #         multi_scale=True
+    #     )
+    # ))
     
     return exps
 
@@ -150,7 +150,7 @@ def run_one(model_path, yaml_path, project, base_overrides, exp_name, exp_overri
         name=run_name,
         cos_lr=True,
         cache=True,
-        # save_period=10,
+        save_period=10,
         verbose=True,
         patience=patience,
         **base_overrides,
